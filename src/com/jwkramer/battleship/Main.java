@@ -1,152 +1,192 @@
 package com.jwkramer.battleship;
 
-import java.util.Random;
-import java.util.Scanner;
+import java.io.Console;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) {
+        final List<String> letterList = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
+        final Map<String, Integer> ships = new HashMap<>();
+        {
+            ships.put("DESTROYER", 2);
+            ships.put("CRUISER", 3);
+            ships.put("BATTLESHIP", 4);
+            ships.put("CARRIER", 5);
 
-//        Console console = System.console();
-        Scanner console = new Scanner(System.in);
+        }
+
+        Console console = System.console();
+//        Scanner console = new Scanner(System.in);
 
         boolean winner = false;
+        int counter = 1;
 
         System.out.print("\033[H\033[2J");
         System.out.println("Welcome to Battleship");
-        System.out.println("Default is 1 player");
-        System.out.println("Press enter to begin");
-        //TODO: try/catch or other error handling on user inputs
+        System.out.println("Default is 1 player vs computer");
+        System.out.println("Press enter to begin placing your ships");
+        console.readLine();
+//        console.next();
 
+        //TODO: try/catch or other error handling on user inputs
 
         Player player1 = new Player(1, true);
         Player player2 = new Player(2, false);
 
-        System.out.println("Board 1 place your ships:");
-        for(Enum ship : Ship.types.values()) {
+        for (Map.Entry<String, Integer> ship : ships.entrySet()) {
             boolean placementSuccess = false;
             while (!placementSuccess) {
 
+                //TODO: solution for windows?
+                System.out.print("\033[H\033[2J");
+
                 //TODO: try pushing up project without MANIFEST.MF and see if it works still when compiling jar
                 //TODO: display size of ship
-                System.out.println("Ship " + (ship.ordinal() + 1) + "/" + Ship.types.values().length + ": " + ship);
+                System.out.println("Ship " + (counter) + "/" + ships.size() + ": " + ship.getKey() + " (Size: " + ship.getValue() + ")");
 
-                player1.board1.display();
+                player1.gameBoard.display();
 
                 System.out.println("Please enter row number (1 - 10):");
-//                int row = Integer.parseInt(console.readLine());
-                String rowString = console.next();
+                String rowString = console.readLine();
+//                String rowString = console.next();
                 while (!rowString.matches("[1-9]|10")) {
                     System.out.println("Invalid Key");
-                    rowString = console.next();
+                    rowString = console.readLine();
+//                    rowString = console.next();
                 }
                 Integer row = Integer.parseInt(rowString);
 
                 System.out.println("Please enter column letter (a - j):");
-//                String columnString = console.readLine();
-                String columnString = console.next();
+                String columnString = console.readLine();
+//                String columnString = console.next();
                 while (!columnString.matches("[a-j]")) {
                     System.out.println("Invalid Key");
-                    columnString = console.next();
+                    columnString = console.readLine();
+//                    columnString = console.next();
                 }
-                char column = columnString.charAt(0);
+                int column = letterList.indexOf(columnString);
 
                 System.out.println("Please enter orientation (h or v):");
-//                String orientationString = console.readLine();
-                String orientationString = console.next();
-                while (!orientationString.matches("h|v]")) {
+                String orientationString = console.readLine();
+//                String orientationString = console.next();
+                while (!orientationString.matches("[hv]")) {
                     System.out.println("Invalid Key");
-                    orientationString = console.next();
+                    orientationString = console.readLine();
+//                    orientationString = console.next();
                 }
                 char orientation = orientationString.charAt(0);
 
-                if (player1.board1.checkPlacement(ship, row, column, orientation)) {
-                    player1.board1.placeShip(ship, row, column, orientation);
+                if (player1.gameBoard.checkPlacement(ship.getValue(), row, column, orientation)) {
+                    player1.gameBoard.placeShip(ship.getValue(), row, column, orientation);
                     placementSuccess = true;
                 }
 
                 if (!placementSuccess) {
                     System.out.println("Error on placement, press enter to try again:");
-//                    console.readLine();
-                    console.next();
+                    console.readLine();
+//                    console.next();
                 }
-
-                //TODO: solution for windows?
-                System.out.print("\033[H\033[2J");
             }
+            counter++;
         }
 
-        //TODO:Computer player intialize
-        player2.board1.computerInitEasy();
+        //TODO: Computer player intialize
+        player2.gameBoard.computerInitEasy(ships.values());
+        System.out.print("\033[H\033[2J");
 
+        player1.gameBoard.display();
         System.out.println("Press enter to begin");
-        console.next();
+        console.readLine();
+//        console.next();
+        System.out.print("\033[H\033[2J");
 
-        while (!winner) {
+        //TODO: Create two player option, and put console ui in methods
+
+        //counter only for precaution for now
+        while (!winner || (counter >= 200)) {
             if (player1.isTurn() == true) {
+
+                System.out.println("Your current shot attempts:");
+                player1.trackingBoard.display();
+
                 System.out.println("Please enter row number for shot (1 - 10):");
-//                int row = Integer.parseInt(console.readLine());
-                String rowString = console.next();
+                String rowString = console.readLine();
+//                String rowString = console.next();
                 while (!rowString.matches("[1-9]|10")) {
                     System.out.println("Invalid Key");
-                    rowString = console.next();
+                    rowString = console.readLine();
+//                    rowString = console.next();
                 }
-                Integer row = Integer.parseInt(rowString);
+                int row = Integer.parseInt(rowString);
 
                 System.out.println("Please enter column letter for shot (a - j):");
-//                String columnString = console.readLine();
-                String columnString = console.next();
+                String columnString = console.readLine();
+//                String columnString = console.next();
                 while (!columnString.matches("[a-j]")) {
                     System.out.println("Invalid Key");
-                    columnString = console.next();
+                    columnString = console.readLine();
+//                    columnString = console.next();
                 }
-                char column = columnString.charAt(0);
+                int column = letterList.indexOf(columnString);
 
-                boolean hit = player2.takeShot(row, column);
+                boolean hit = player2.markGameBoard(row -  1, column);
+                player1.markTrackingBoard(row - 1, column, hit);
+
                 if (hit) {
+                    System.out.print("\033[H\033[2J");
                     System.out.println("hit!");
-                    player2.setHitCount(player2.getHitCount() + 1);
-                    player1.markHit(row, column);
+                    player1.trackingBoard.display();
                     if (player2.getHitCount() == 14) {
                         gameOver(player1);
                         winner = true;
                     }
-                } else System.out.println("miss.");
+                } else {
+                    System.out.print("\033[H\033[2J");
+                    System.out.println("miss.");
+                    player1.trackingBoard.display();
+                }
+
             } else {
                 boolean hit = computerHitEasy(player1, player2);
                 if (hit) {
-                    System.out.println("hit!");
-                    player1.setHitCount(player1.getHitCount() + 1);
+                    System.out.println("Computer hit!");
 
                     if (player1.getHitCount() == 14) {
                         gameOver(player2);
                         winner = true;
                     }
 
+                } else {
+                    System.out.println("Computer miss.");
                 }
+                System.out.println("Player 1 Board:");
+                player1.gameBoard.display();
             }
+            counter++;
+            System.out.println("Press enter for next shot:");
+            console.readLine();
+//            console.next();
+            System.out.print("\033[H\033[2J");
         }
     }
 
-    static boolean computerHitEasy(Player player1, Player player2) {
+    static boolean computerHitEasy(Player p1, Player p2) {
         Random random = new Random();
         int row = random.nextInt(10);
         int col = random.nextInt(10);
-        while (!player2.checkShot(row, col)) {
+        while (!p1.computerCheckShot(row, col)) {
             row = random.nextInt(10);
             col = random.nextInt(10);
         }
-        player2.markHitComputer(row, col);
-
-        if (player1.checkShotComputer(row, col)) {
-            return true;
-        } else return false;
+        boolean hit = p1.markGameBoard(row, col);
+        p2.markTrackingBoard(row, col, hit);
+        return hit;
     }
-
 
     private static void gameOver(Player player) {
         System.out.print("\033[H\033[2J");
-        if(player.getPlayerNumber() == 1) {
+        if (player.getPlayerNumber() == 1) {
             System.out.println("Congratulations Player 1, You Win!");
         } else System.out.println("Sorry, you lose.");
     }

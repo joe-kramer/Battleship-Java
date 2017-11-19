@@ -4,17 +4,8 @@ import java.util.*;
 
 public class Board {
     private final Integer SIZE = 10;
-    private final List<Character> letterList = new ArrayList<>(Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'));
-    private final Map<String, Integer> shipMap = new HashMap<>();
 
-    {
-        shipMap.put("CARRIER", 5);
-        shipMap.put("BATTLESHIP", 4);
-        shipMap.put("CRUISER", 3);
-        shipMap.put("DESTROYER", 2);
-    }
-
-    //TODO: Do I want to initialize here or in constructor?
+    //TODO: Do I want to initialize here or in constructor? What is the benefit of using initializer. In spring boot repository case as well. Is it particular to main classes?
     private Square[][] board = new Square[SIZE][SIZE];
 
     public Board() {
@@ -25,10 +16,7 @@ public class Board {
         }
     }
 
-    public boolean checkPlacement(Enum ship, int row, char column, char orientation) {
-        int col = letterList.indexOf(column);
-        int shipSize = shipMap.get(ship.toString());
-
+    public boolean checkPlacement(int shipSize, int row, int col, char orientation) {
         //TODO: do i need exception here on orientation? even if i am doing that in main class?
 
         if (orientation == 'v') {
@@ -45,11 +33,9 @@ public class Board {
         return true;
     }
 
-    public void placeShip(Enum ship, int row, char column, char orientation) {
-        int col = letterList.indexOf(column);
-        int shipSize = shipMap.get(ship.toString());
-
+    public void placeShip(int shipSize, int row, int col, char orientation) {
         //TODO: make array of ship views
+
         if (orientation == 'v') {
             for (int r = row - 1; r < (row + shipSize - 1); r++) {
                 board[r][col].placeShip('s');
@@ -82,28 +68,39 @@ public class Board {
         System.out.println();
     }
 
-    public void computerInitEasy() {
+    public boolean hit(int row, int col) {
+        this.board[row][col].hit();
+        if (this.board[row][col].isShip()) {
+            return true;
+        } else return false;
+    }
+
+    public void track(int row, int col, boolean hit) {
+        this.board[row][col].track(hit);
+    }
+
+
+    /*
+    * AI methods
+    * */
+
+    public void computerInitEasy(Collection<Integer> ships) {
+
         Random random = new Random();
-        for (Enum ship : Ship.types.values()) {
+
+        for (int ship : ships) {
             char orientation;
             int row = random.nextInt(SIZE);
-            int column = random.nextInt(SIZE);
+            int col = random.nextInt(SIZE);
             int orient = random.nextInt(2);
             orientation = (orient == 0) ? 'v' : 'h';
 
-            while (!checkPlacement(ship, row, letterList.get(column), orientation)) {
+            while (!checkPlacement(ship, row, col, orientation)) {
                 row = random.nextInt(SIZE);
-                column = random.nextInt(SIZE);
+                col = random.nextInt(SIZE);
             }
-            placeShip(ship, row, letterList.get(column), orientation);
+            placeShip(ship, row, col, orientation);
         }
-    }
-
-    public boolean hit(int row, char col) {
-        this.board[row][letterList.indexOf(col)].hit();
-        if(this.board[row][letterList.indexOf(col)].isShip()) {
-            return true;
-        } else return false;
     }
 
     public boolean checkShot(int row, int col) {

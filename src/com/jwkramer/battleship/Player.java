@@ -5,8 +5,13 @@ public class Player {
     private boolean turn;
     private int hitCount = 0;
     private int playerNumber;
-    public Board board1 = new Board();
-    public Board board2 = new Board();
+    public Board gameBoard = new Board();
+    public Board trackingBoard = new Board();
+
+    public Player(int num, boolean turn) {
+        this.turn = turn;
+        this.playerNumber = num;
+    }
 
     public boolean isTurn() {
         return turn;
@@ -20,35 +25,25 @@ public class Player {
         this.hitCount = hitCount;
     }
 
-    public Player(int num, boolean turn) {
-        this.turn = turn;
-        this.playerNumber = num;
-    }
-
     public int getPlayerNumber() {
         return playerNumber;
     }
 
-    public boolean takeShot(int row, char col) {
+    public boolean markGameBoard(int row, int column) {
         this.turn = true;
-        return this.board1.hit(row, col);
+        if (this.gameBoard.hit(row, column)) {
+            this.hitCount++;
+            return true;
+        }
+        return false;
     }
 
-    public void markHit(Integer row, char column) {
+    public void markTrackingBoard(int row, int column, boolean hit) {
         this.turn = false;
-        this.board2.hit(row, column);
+        this.trackingBoard.track(row, column, hit);
     }
 
-    public boolean checkShot(int row, int col) {
-        return this.board2.checkShot(row, col);
-    }
-
-    public void markHitComputer(int row, int col) {
-        this.turn = false;
-        this.board2.hitComputer(row, col);
-    }
-
-    public boolean checkShotComputer(int row, int col) {
-        return this.board1.checkShotComputer(row, col);
+    public boolean computerCheckShot(int row, int col) {
+        return this.trackingBoard.checkShot(row, col);
     }
 }

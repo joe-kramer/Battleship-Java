@@ -16,7 +16,12 @@ public class Square {
 
     public void hit() {
         this.isHit = true;
-        this.view = '*';
+        this.view = this.isShip ? '*' : 'm';
+    }
+
+    public void track(boolean hit) {
+        this.isHit = true;
+        this.view = (hit) ? '*' : 'm';
     }
 
     public boolean isShip() {
