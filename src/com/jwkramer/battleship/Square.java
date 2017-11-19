@@ -6,7 +6,8 @@ public class Square {
     private boolean isHit = false;
     private char view = '~';
 
-    public Square() {}
+    public Square() {
+    }
 
     public void placeShip(char view) {
         this.isShip = true;
