@@ -20,14 +20,14 @@ public class Board {
         //TODO: do i need exception here on orientation? even if i am doing that in main class?
 
         if (orientation == 'v') {
-            for (int r = row - 1; r < (row + shipSize - 1); r++) {
+            for (int r = row; r < (row + shipSize); r++) {
                 if (r == SIZE) return false;
                 if (board[r][col].isShip()) return false;
             }
         } else {
             for (int c = col; c < col + shipSize; c++) {
                 if (c == SIZE) return false;
-                if (board[row - 1][c].isShip()) return false;
+                if (board[row][c].isShip()) return false;
             }
         }
         return true;
@@ -37,12 +37,12 @@ public class Board {
         //TODO: make array of ship views
 
         if (orientation == 'v') {
-            for (int r = row - 1; r < (row + shipSize - 1); r++) {
+            for (int r = row; r < (row + shipSize); r++) {
                 board[r][col].placeShip('s');
             }
         } else {
             for (int c = col; c < col + shipSize; c++) {
-                board[row - 1][c].placeShip('s');
+                board[row][c].placeShip('s');
             }
         }
     }
@@ -77,6 +77,20 @@ public class Board {
 
     public void track(int row, int col, boolean hit) {
         this.board[row][col].track(hit);
+    }
+
+    public void testing(Collection<Integer> ships) {
+
+        int counter = 0;
+        for (int ship : ships) {
+
+            char orientation = 'h';
+            int row = counter;
+            int col = 0;
+
+            placeShip(ship, row, col, orientation);
+            counter++;
+        }
     }
 
 
@@ -114,4 +128,6 @@ public class Board {
     public boolean checkShotComputer(int row, int col) {
         return this.board[row][col].isShip();
     }
+
+
 }

@@ -29,8 +29,6 @@ public class Main {
         console.readLine();
 //        console.next();
 
-        //TODO: try/catch or other error handling on user inputs
-
         Player player1 = new Player(1, true);
         Player player2 = new Player(2, false);
 
@@ -42,7 +40,6 @@ public class Main {
                 System.out.print("\033[H\033[2J");
 
                 //TODO: try pushing up project without MANIFEST.MF and see if it works still when compiling jar
-                //TODO: display size of ship
                 System.out.println("Ship " + (counter) + "/" + ships.size() + ": " + ship.getKey() + " (Size: " + ship.getValue() + ")");
 
                 player1.gameBoard.display();
@@ -55,7 +52,7 @@ public class Main {
                     rowString = console.readLine();
 //                    rowString = console.next();
                 }
-                Integer row = Integer.parseInt(rowString);
+                Integer row = (Integer.parseInt(rowString) - 1);
 
                 System.out.println("Please enter column letter (a - j):");
                 String columnString = console.readLine();
@@ -91,7 +88,8 @@ public class Main {
             counter++;
         }
 
-        //TODO: Computer player intialize
+//        player1.gameBoard.testing(ships.values());
+//        player2.gameBoard.testing(ships.values());
         player2.gameBoard.computerInitEasy(ships.values());
         System.out.print("\033[H\033[2J");
 
@@ -101,13 +99,15 @@ public class Main {
 //        console.next();
         System.out.print("\033[H\033[2J");
 
+        player1.setHitCount(13);
+
         //TODO: Create two player option, and put console ui in methods
 
         //counter only for precaution for now
         while (!winner || (counter >= 200)) {
             if (player1.isTurn() == true) {
 
-                System.out.println("Your current shot attempts:");
+                System.out.println("Player1's turn:");
                 player1.trackingBoard.display();
 
                 System.out.println("Please enter row number for shot (1 - 10):");
@@ -118,7 +118,7 @@ public class Main {
                     rowString = console.readLine();
 //                    rowString = console.next();
                 }
-                int row = Integer.parseInt(rowString);
+                int row = (Integer.parseInt(rowString) - 1);
 
                 System.out.println("Please enter column letter for shot (a - j):");
                 String columnString = console.readLine();
@@ -130,60 +130,60 @@ public class Main {
                 }
                 int column = letterList.indexOf(columnString);
 
-                boolean hit = player2.markGameBoard(row -  1, column);
-                player1.markTrackingBoard(row - 1, column, hit);
+                boolean hit = player2.markGameBoard(row, column);
+                player1.markTrackingBoard(row, column, hit);
+                System.out.print("\033[H\033[2J");
 
                 if (hit) {
-                    System.out.print("\033[H\033[2J");
                     System.out.println("hit!");
                     player1.trackingBoard.display();
                     if (player2.getHitCount() == 14) {
                         gameOver(player1);
-                        winner = true;
+                        return;
                     }
                 } else {
-                    System.out.print("\033[H\033[2J");
                     System.out.println("miss.");
                     player1.trackingBoard.display();
                 }
+                System.out.println("Press enter for computer's shot:");
 
             } else {
-                boolean hit = computerHitEasy(player1, player2);
+                System.out.print("Computer's turn... ");
+                Random random = new Random();
+                int row = random.nextInt(10);
+                int col = random.nextInt(10);
+
+                while (player1.computerCheckShot(row, col)) {
+                    row = random.nextInt(10);
+                    col = random.nextInt(10);
+                }
+
+                boolean hit = player1.markGameBoard(row, col);
+                player2.markTrackingBoard(row, col, hit);
+
                 if (hit) {
                     System.out.println("Computer hit!");
 
                     if (player1.getHitCount() == 14) {
                         gameOver(player2);
-                        winner = true;
+                        return;
                     }
 
                 } else {
                     System.out.println("Computer miss.");
                 }
-                System.out.println("Player 1 Board:");
+                System.out.println("");
+                System.out.println("Player1's board:");
                 player1.gameBoard.display();
+                System.out.println("Press enter for Player1's shot:");
             }
             counter++;
-            System.out.println("Press enter for next shot:");
             console.readLine();
 //            console.next();
             System.out.print("\033[H\033[2J");
         }
     }
-
-    static boolean computerHitEasy(Player p1, Player p2) {
-        Random random = new Random();
-        int row = random.nextInt(10);
-        int col = random.nextInt(10);
-        while (!p1.computerCheckShot(row, col)) {
-            row = random.nextInt(10);
-            col = random.nextInt(10);
-        }
-        boolean hit = p1.markGameBoard(row, col);
-        p2.markTrackingBoard(row, col, hit);
-        return hit;
-    }
-
+    //TODO: static methods ?
     private static void gameOver(Player player) {
         System.out.print("\033[H\033[2J");
         if (player.getPlayerNumber() == 1) {
